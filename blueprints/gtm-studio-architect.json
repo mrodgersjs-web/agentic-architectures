@@ -1,0 +1,204 @@
+{
+  "schema_version": "rig.architect.blueprint.v1",
+  "blueprint_id": "gtm-studio-agentic-architectures",
+  "target_repo": "mrodgersjs-web/rig-gtm-studio-v2",
+  "companion_repo": "mrodgersjs-web/clients-ai-jobs",
+  "target_owner_rule": "architect-blueprint (OWNERS.yaml -> blueprints/**)",
+  "pattern_catalog_repo": "mrodgersjs-web/agentic-architectures",
+  "pattern_catalog_ref": "patterns/registry.json",
+  "composer_engine": "patterns.composer:compile_blueprint_to_langgraph",
+  "bama_cli": "rig-patterns",
+  "lane": "RIG",
+  "reconcile_owner": "RIG",
+  "mode": "draft_only",
+  "proof_chain_required": true,
+  "supabase_schema": "gtm.*",
+  "nodes": [
+    {
+      "id": "L1-overnight-intel",
+      "canvas_node_id": "L1-overnight-intel",
+      "canvas_lane": "Overnight Intel (21:00-06:00 MT)",
+      "lane": "RIG",
+      "reconcile_owner": "RIG",
+      "agentic_pattern_id": "graph-rag",
+      "supporting_pattern_ids": [
+        "agentic-rag",
+        "react"
+      ],
+      "pattern_family": "rag",
+      "owner_agent": "jason:researcher",
+      "inputs": [
+        "sellbird-discoveries",
+        "socialfetch-comment-pulls",
+        "supabase-gtm-leads"
+      ],
+      "outputs": [
+        "scored-top-prospects",
+        "5-signal-enrichment",
+        "buyer-safe-teasers"
+      ],
+      "gate_command": "GET http://127.0.0.1:3211/api/rig/gtm-harness/architect",
+      "metric": "verified ICP prospects scored with zero Oracle or active-job-company collisions",
+      "verification_gate": {
+        "jev_rubric": "gtm.overnight_intel",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "L2-playbook-draft-jev",
+      "canvas_node_id": "L2-playbook-draft-jev",
+      "canvas_lane": "Morning Playbook & Jev Gate (06:15 MT)",
+      "lane": "RIG",
+      "reconcile_owner": "RIG",
+      "agentic_pattern_id": "pev",
+      "supporting_pattern_ids": [
+        "constitutional-ai",
+        "reflection"
+      ],
+      "pattern_family": "tools",
+      "owner_agent": "jason:copywriter",
+      "inputs": [
+        "cegtec-8-blueprints",
+        "top-ml-bandit-arm",
+        "omnichannel-script-library"
+      ],
+      "outputs": [
+        "held-gtm-touches",
+        "jev-row-level-verdict"
+      ],
+      "gate_command": "GET http://127.0.0.1:3211/api/rig/gtm-harness/architect",
+      "metric": "100% drafts passing linter + SlopMonster + hosted Jev before briefing",
+      "verification_gate": {
+        "jev_rubric": "gtm.playbook_draft",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "L3-daytime-gated-dispatch",
+      "canvas_node_id": "L3-daytime-gated-dispatch",
+      "canvas_lane": "Daytime Gated Dispatch (08:00-18:00 MT)",
+      "lane": "RIG",
+      "reconcile_owner": "RIG",
+      "agentic_pattern_id": "dry-run",
+      "supporting_pattern_ids": [
+        "browser-agent"
+      ],
+      "pattern_family": "safety",
+      "owner_agent": "jason:manager",
+      "inputs": [
+        "approved-gtm-touches-sha12",
+        "daily-cap-telemetry"
+      ],
+      "outputs": [
+        "dispatch-receipts",
+        "bounce-and-throttle-telemetry"
+      ],
+      "gate_command": "GET http://127.0.0.1:3211/api/rig/gtm-harness/architect",
+      "metric": "zero unapproved sends and bounce rate below 2%",
+      "verification_gate": {
+        "jev_rubric": "gtm.gated_dispatch",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "L4-reply-triage-ml-adjust",
+      "canvas_node_id": "L4-reply-triage-ml-adjust",
+      "canvas_lane": "Reply Triage & ML Bandit (Every 15m)",
+      "lane": "RIG",
+      "reconcile_owner": "RIG",
+      "agentic_pattern_id": "episodic-semantic-agent",
+      "supporting_pattern_ids": [
+        "rlhf-self-improvement",
+        "agent-workflow-memory"
+      ],
+      "pattern_family": "memory",
+      "owner_agent": "jason:responder",
+      "inputs": [
+        "chatwoot-inbound-replies",
+        "papermark-views",
+        "formbricks-submissions"
+      ],
+      "outputs": [
+        "held-reply-draft",
+        "updated-l2-sgd-weights",
+        "updated-bandit-arms"
+      ],
+      "gate_command": "GET http://127.0.0.1:3211/api/rig/gtm-harness/architect",
+      "metric": "reply triage latency and calibrated Brier error reduction",
+      "verification_gate": {
+        "jev_rubric": "gtm.reply_triage",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "L5-weekly-architect-audit",
+      "canvas_node_id": "L5-weekly-architect-audit",
+      "canvas_lane": "Weekly Architect Audit (Sun 19:00 MT)",
+      "lane": "RIG",
+      "reconcile_owner": "RIG",
+      "agentic_pattern_id": "debate",
+      "supporting_pattern_ids": [
+        "reflexion",
+        "meta-controller"
+      ],
+      "pattern_family": "multi",
+      "owner_agent": "rig-gtm-architect",
+      "inputs": [
+        "7d-ml-outcomes",
+        "bandit-leaderboard",
+        "14d-zero-output-bot-audit"
+      ],
+      "outputs": [
+        "architect-doctor-receipt",
+        "pruned-arms-report",
+        "jakebrain-graveyard-updates"
+      ],
+      "gate_command": "GET http://127.0.0.1:3211/api/rig/gtm-harness/architect",
+      "metric": "zero stale bots past 14d and 100% Goldfish verification pass rate",
+      "verification_gate": {
+        "jev_rubric": "gtm.weekly_audit",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    }
+  ]
+}

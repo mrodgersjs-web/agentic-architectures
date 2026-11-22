@@ -1,0 +1,1845 @@
+{
+  "schema_version": "rig.architect.patterns.v1",
+  "source_repo": "mrodgersjs-web/agentic-architectures",
+  "upstream_repo": "https://github.com/FareedKhan-dev/all-agentic-architectures",
+  "upstream_pinned_commit": "cf9d620a8cc55d59589399c30f305e6dfaa428ec",
+  "pattern_count": 36,
+  "numbered_patterns": 35,
+  "family_count": 8,
+  "content_sha256": "f672f504466b5cf2a52352e562f99d413fff205a2e2475cdf41b269b6eff6405",
+  "contract_guarantees": {
+    "draft_only_default": true,
+    "never_sends_outward": true,
+    "required_passthrough_keys": [
+      "lane",
+      "reconcile_owner"
+    ],
+    "exit_codes": {
+      "PASS": 0,
+      "HOLD": 1,
+      "BLOCK": 2
+    }
+  },
+  "families": [
+    {
+      "id": "tools",
+      "label": "Tools & Actions",
+      "color": "#e85d8a"
+    },
+    {
+      "id": "reflect",
+      "label": "Reasoning & Reflection",
+      "color": "#4a9eed"
+    },
+    {
+      "id": "rag",
+      "label": "Retrieval (RAG)",
+      "color": "#43b97f"
+    },
+    {
+      "id": "memory",
+      "label": "Memory",
+      "color": "#e8a33d"
+    },
+    {
+      "id": "search",
+      "label": "Sampling & Search",
+      "color": "#b07fe8"
+    },
+    {
+      "id": "multi",
+      "label": "Multi-Agent",
+      "color": "#e8763d"
+    },
+    {
+      "id": "safety",
+      "label": "Safety & Routing",
+      "color": "#d64545"
+    },
+    {
+      "id": "specialty",
+      "label": "Specialty",
+      "color": "#8a9bb0"
+    }
+  ],
+  "patterns": [
+    {
+      "id": "tool-use",
+      "class_name": "ToolUse",
+      "notebook": "02",
+      "family": "tools",
+      "family_label": "Tools & Actions",
+      "name": "ToolUse (#02)",
+      "one_liner": "Agent + tools in a loop",
+      "description": "The model is handed tools. Each round it either calls one (the harness executes it for real and feeds the result back) or gives the final answer \u2014 the simplest decide \u2192 act \u2192 observe loop.",
+      "reference": "LangChain reference",
+      "graph_entrypoint": "agentic_architectures.architectures:ToolUse",
+      "default_task_key": "web_search_tool",
+      "default_kwargs": {
+        "max_rounds": 3
+      },
+      "needs": [
+        "search"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Anything needing live data or actions: web lookups, calculators, internal APIs.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "react",
+      "class_name": "ReAct",
+      "notebook": "03",
+      "family": "tools",
+      "family_label": "Tools & Actions",
+      "name": "ReAct (#03)",
+      "one_liner": "Thought \u2192 Action \u2192 Observation",
+      "description": "Interleaves an explicit written Thought before every Action, then reads the Observation \u2014 the visible reasoning trace steers each next tool call.",
+      "reference": "Yao 2022",
+      "graph_entrypoint": "agentic_architectures.architectures:ReAct",
+      "default_task_key": "web_search_tool",
+      "default_kwargs": {},
+      "needs": [
+        "search"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "query",
+        "source_posting_receipt"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Multi-hop research: 'find X, then use X to find Y', debugging with searches.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n01-signal-scout"
+      ],
+      "job_os_stages": [
+        "01_signal_scout"
+      ],
+      "gtm_loops": [
+        "L1-overnight-intel"
+      ],
+      "company_os_roles": [
+        "scout",
+        "researcher"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "planning",
+      "class_name": "Planning",
+      "notebook": "04",
+      "family": "tools",
+      "family_label": "Tools & Actions",
+      "name": "Planning (#04)",
+      "one_liner": "Decompose \u2192 execute \u2192 replan",
+      "description": "First decomposes the goal into an ordered step list, then executes the steps one by one, replanning when a result changes the picture \u2014 plan and execution are separate concerns.",
+      "reference": "Wei 2022",
+      "graph_entrypoint": "agentic_architectures.architectures:Planning",
+      "default_task_key": "planning_task",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Long multi-part deliverables: itineraries, migration checklists, briefs.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "browser-agent",
+      "class_name": "BrowserAgent",
+      "notebook": "34b",
+      "family": "tools",
+      "family_label": "Tools & Actions",
+      "name": "BrowserAgent (#34b)",
+      "one_liner": "REAL Chromium via Playwright + safety gate",
+      "description": "The real thing: headless Chromium via Playwright \u2014 navigate, read the page, click, extract \u2014 with every URL checked against a domain blocklist and outputs scanned for sensitive patterns.",
+      "reference": "Anthropic 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:BrowserAgent",
+      "default_task_key": "web_navigate",
+      "default_kwargs": {
+        "max_iterations": 3,
+        "headless": true,
+        "blocked_domains": [
+          "evil-phishing.com"
+        ]
+      },
+      "needs": [
+        "browser"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "ats_host",
+        "approval_sha12"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Web tasks needing a real page: reading a heading, scraping a value, guided navigation.",
+      "rig_lanes": [
+        "JOB",
+        "RIG"
+      ],
+      "job_os_nodes": [
+        "n07-sequence-24x7-gated"
+      ],
+      "job_os_stages": [
+        "06_aside_form_runner"
+      ],
+      "gtm_loops": [
+        "L3-daytime-gated-dispatch"
+      ],
+      "company_os_roles": [
+        "browser-runner"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "swe-agent",
+      "class_name": "SWEAgent",
+      "notebook": "33",
+      "family": "tools",
+      "family_label": "Tools & Actions",
+      "name": "SWEAgent (#33)",
+      "one_liner": "Sandboxed file-system coding agent",
+      "description": "A coding agent with file tools in a sandboxed working dir: it lists and reads files, writes edits, and calls run_check to execute the code \u2014 navigate, fix, verify.",
+      "reference": "Yang 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:SWEAgent",
+      "default_task_key": "code_repo_fix",
+      "default_kwargs": {},
+      "needs": [
+        "code-exec"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Repo-level bug fixes with a runnable check.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "pev",
+      "class_name": "PEV",
+      "notebook": "06",
+      "family": "tools",
+      "family_label": "Tools & Actions",
+      "name": "PEV (#06)",
+      "one_liner": "Plan \u2192 execute \u2192 verify each step",
+      "description": "Plans steps, executes each one, and a verifier gates EVERY step \u2014 a failed step is retried with the verifier's critique attached before the plan may continue.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:PEV",
+      "default_task_key": "creative_writing",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "plan_steps",
+        "verification_criteria"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Pipelines where one silently-wrong middle step poisons the rest: data transforms, multi-step calculations.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n03-resume-formatting"
+      ],
+      "job_os_stages": [
+        "04_truth_resume_craft"
+      ],
+      "gtm_loops": [
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "deliverable-builder"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "reflection",
+      "class_name": "Reflection",
+      "notebook": "01",
+      "family": "reflect",
+      "family_label": "Reasoning & Reflection",
+      "name": "Reflection (#01)",
+      "one_liner": "Generate \u2192 critique \u2192 refine",
+      "description": "Drafts an answer (generate), has a judge score and critique it 1\u201310 (critique), then rewrites using that critique (refine) \u2014 looping until the score clears the target or iterations run out.",
+      "reference": "Madaan 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:Reflection",
+      "default_task_key": "math_word",
+      "default_kwargs": {
+        "max_iterations": 2,
+        "target_score": 7
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "draft_text",
+        "rubric"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Quality-over-latency outputs: reports, emails, code snippets, marketing copy.",
+      "rig_lanes": [
+        "JOB",
+        "RIG"
+      ],
+      "job_os_nodes": [
+        "n04-positive-comment"
+      ],
+      "job_os_stages": [
+        "05_cegtec_outbound"
+      ],
+      "gtm_loops": [
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "editor"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "self-discover",
+      "class_name": "SelfDiscover",
+      "notebook": "19",
+      "family": "reflect",
+      "family_label": "Reasoning & Reflection",
+      "name": "SelfDiscover (#19)",
+      "one_liner": "SELECT \u2192 ADAPT \u2192 IMPLEMENT \u2192 SOLVE",
+      "description": "Composes its own reasoning recipe before solving: SELECTs useful thinking modules, ADAPTs them to this task, assembles an IMPLEMENT plan, then SOLVEs by following it.",
+      "reference": "Zhou 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:SelfDiscover",
+      "default_task_key": "math_word",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "role_id",
+        "recruiter_context"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Novel or unusual problems where no standard recipe obviously applies.",
+      "rig_lanes": [
+        "JOB",
+        "RIG"
+      ],
+      "job_os_nodes": [
+        "n06-recruiter-outreach"
+      ],
+      "job_os_stages": [
+        "05_cegtec_outbound"
+      ],
+      "gtm_loops": [
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "messaging-strategist"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "chain-of-verification",
+      "class_name": "ChainOfVerification",
+      "notebook": "20",
+      "family": "reflect",
+      "family_label": "Reasoning & Reflection",
+      "name": "ChainOfVerification (#20)",
+      "one_liner": "Verify each claim independently",
+      "description": "Drafts a baseline answer, plans independent verification questions (plan), answers each one separately so errors can't defend themselves, then rewrites keeping only what survived.",
+      "reference": "Dhuliawala 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:ChainOfVerification",
+      "default_task_key": "factual_trap",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "corpus_excerpts",
+        "claims"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Hallucination-prone factual output: lists, bios, citations.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n02-executive-writing",
+        "n06-recruiter-outreach"
+      ],
+      "job_os_stages": [
+        "04_truth_resume_craft"
+      ],
+      "gtm_loops": [
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "claim-verifier"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "constitutional-ai",
+      "class_name": "ConstitutionalAI",
+      "notebook": "32",
+      "family": "reflect",
+      "family_label": "Reasoning & Reflection",
+      "name": "ConstitutionalAI (#32)",
+      "one_liner": "Per-rule pass/fail \u2192 revise",
+      "description": "Checks the draft against an explicit rule list \u2014 each rule gets its own pass/fail (critique) \u2014 then revises to fix exactly the failed rules. Principles, not vibes.",
+      "reference": "Bai 2022",
+      "graph_entrypoint": "agentic_architectures.architectures:ConstitutionalAI",
+      "default_task_key": "constitutional",
+      "default_kwargs": {
+        "max_iterations": 1
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "draft_text",
+        "constitution_rules"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Enforcing brand, safety, or style policies on outputs.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n03-resume-formatting",
+        "n04-positive-comment"
+      ],
+      "job_os_stages": [
+        "04_truth_resume_craft",
+        "05_cegtec_outbound"
+      ],
+      "gtm_loops": [
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "policy-auditor"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "reflexion",
+      "class_name": "Reflexion",
+      "notebook": "18",
+      "family": "reflect",
+      "family_label": "Reasoning & Reflection",
+      "name": "Reflexion (#18)",
+      "one_liner": "Verbal reflections in episodic memory",
+      "description": "Attempts the task, evaluates its own answer, writes a verbal lesson into episodic memory (reflect), and retries informed by its accumulated lessons \u2014 improvement across trials.",
+      "reference": "Shinn 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:Reflexion",
+      "default_task_key": "math_word_reflex",
+      "default_kwargs": {
+        "max_trials": 2
+      },
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "rejection_memo",
+        "lesson_record"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Tasks with a checkable success signal where retries help: code fixes, puzzles.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n08-ml-bandit-loop"
+      ],
+      "job_os_stages": [
+        "08_interview_verifier"
+      ],
+      "gtm_loops": [
+        "L5-weekly-architect-audit"
+      ],
+      "company_os_roles": [
+        "retrospective-learner"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "corrective-rag",
+      "class_name": "CorrectiveRAG",
+      "notebook": "24",
+      "family": "rag",
+      "family_label": "Retrieval (RAG)",
+      "name": "CorrectiveRAG (#24)",
+      "one_liner": "Grade docs, fall back when weak",
+      "description": "Retrieves, then GRADES each document's relevance; weak evidence triggers a corrective fallback (query rewrite / web search) before any answer is written.",
+      "reference": "Yan 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:CorrectiveRAG",
+      "default_task_key": "multi_hop_rag",
+      "default_kwargs": {
+        "top_k": 3
+      },
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "query",
+        "corpus_refs"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "RAG over patchy indexes where bad retrievals are common.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n02-executive-writing"
+      ],
+      "job_os_stages": [
+        "04_truth_resume_craft"
+      ],
+      "gtm_loops": [
+        "L1-overnight-intel",
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "knowledge-retriever"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "agentic-rag",
+      "class_name": "AgenticRAG",
+      "notebook": "23",
+      "family": "rag",
+      "family_label": "Retrieval (RAG)",
+      "name": "AgenticRAG (#23)",
+      "one_liner": "Agent decides when & what to retrieve",
+      "description": "The agent DECIDES if and what to retrieve \u2014 possibly several rounds, reformulating its query each time \u2014 instead of blindly stuffing top-k chunks into context.",
+      "reference": "LangGraph reference",
+      "graph_entrypoint": "agentic_architectures.architectures:AgenticRAG",
+      "default_task_key": "multi_hop_rag",
+      "default_kwargs": {
+        "max_iterations": 3,
+        "top_k": 3
+      },
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Corpus Q&A with multi-hop or ambiguous questions.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "self-rag",
+      "class_name": "SelfRAG",
+      "notebook": "25",
+      "family": "rag",
+      "family_label": "Retrieval (RAG)",
+      "name": "SelfRAG (#25)",
+      "one_liner": "Per-doc reflection tokens",
+      "description": "Emits reflection tokens about each retrieved passage \u2014 retrieve? relevant? supported? \u2014 and only answers from passages it explicitly endorsed.",
+      "reference": "Asai 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:SelfRAG",
+      "default_task_key": "multi_hop_rag",
+      "default_kwargs": {
+        "top_k": 3
+      },
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "RAG that must be faithful and citable.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "adaptive-rag",
+      "class_name": "AdaptiveRAG",
+      "notebook": "26",
+      "family": "rag",
+      "family_label": "Retrieval (RAG)",
+      "name": "AdaptiveRAG (#26)",
+      "one_liner": "Pre-route by query complexity",
+      "description": "Classifies query complexity FIRST, then routes: simple \u2192 answer directly, moderate \u2192 one retrieval, complex \u2192 multi-step retrieval \u2014 effort proportional to need.",
+      "reference": "Jeong 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:AdaptiveRAG",
+      "default_task_key": "multi_hop_rag",
+      "default_kwargs": {
+        "top_k": 3
+      },
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Mixed traffic where most queries don't need the expensive path.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "graph-rag",
+      "class_name": "GraphRAG",
+      "notebook": "27",
+      "family": "rag",
+      "family_label": "Retrieval (RAG)",
+      "name": "GraphRAG (#27)",
+      "one_liner": "Knowledge graph + community summaries",
+      "description": "Builds a knowledge graph from the corpus, detects communities of related entities, and pre-summarizes each; global questions are answered from community summaries, not raw chunks.",
+      "reference": "Microsoft 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:GraphRAG",
+      "default_task_key": "multi_hop_rag",
+      "default_kwargs": {
+        "max_communities": 3
+      },
+      "needs": [
+        "networkx"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "company",
+        "entity_graph"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "'Themes across the whole corpus' questions that chunk-RAG can't see.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n05-hm-peer-dm"
+      ],
+      "job_os_stages": [
+        "03_triangle_research"
+      ],
+      "gtm_loops": [
+        "L1-overnight-intel"
+      ],
+      "company_os_roles": [
+        "org-graph-analyst"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "episodic-semantic-agent",
+      "class_name": "EpisodicSemanticAgent",
+      "notebook": "08",
+      "family": "memory",
+      "family_label": "Memory",
+      "name": "EpisodicSemanticAgent (#08)",
+      "one_liner": "Conversation turns + knowledge triples",
+      "description": "Remembers two ways at once: recall past turns + known facts from both memories (retrieve), reply (answer), then WRITE BACK \u2014 distill new (subject, predicate, object) triples into the semantic graph (extract) and file the whole turn into episodic memory (record).",
+      "reference": "Park 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:EpisodicSemanticAgent",
+      "default_task_key": "stateful_recall",
+      "default_kwargs": {},
+      "needs": [
+        "embeddings",
+        "networkx"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "contact_name",
+        "thread_history"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Assistants that must remember users across sessions: preferences, profile facts, decisions.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n05-hm-peer-dm"
+      ],
+      "job_os_stages": [
+        "03_triangle_research",
+        "07_telemetry_sync"
+      ],
+      "gtm_loops": [
+        "L4-reply-triage-ml-adjust"
+      ],
+      "company_os_roles": [
+        "relationship-memory"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "graph-memory-agent",
+      "class_name": "GraphMemoryAgent",
+      "notebook": "12",
+      "family": "memory",
+      "family_label": "Memory",
+      "name": "GraphMemoryAgent (#12)",
+      "one_liner": "(subject, predicate, object) memory graph",
+      "description": "ingest() distills documents into a knowledge graph of triples; a question extracts its entities, walks the graph around them, and answers strictly from the connected facts it finds.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:GraphMemoryAgent",
+      "default_task_key": "multi_hop_rag",
+      "default_kwargs": {},
+      "needs": [
+        "networkx"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Q&A over interlinked entities: org structures, product catalogs, specs.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "memgpt",
+      "class_name": "MemGPT",
+      "notebook": "31",
+      "family": "memory",
+      "family_label": "Memory",
+      "name": "MemGPT (#31)",
+      "one_liner": "OS-style context + archival tiers",
+      "description": "Operating-system-style memory: a small always-in-context core plus archival storage, with the agent paging facts in and out itself \u2014 virtual memory for conversations.",
+      "reference": "Packer 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:MemGPT",
+      "default_task_key": "stateful_recall",
+      "default_kwargs": {
+        "context_limit": 3,
+        "max_iterations": 3
+      },
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Long-running chats that outgrow the context window.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "voyager",
+      "class_name": "Voyager",
+      "notebook": "29",
+      "family": "memory",
+      "family_label": "Memory",
+      "name": "Voyager (#29)",
+      "one_liner": "Reusable Python skills (real subprocess)",
+      "description": "Writes Python skills, EXECUTES them for real in a subprocess, keeps the ones that work in a vector-indexed library, and composes past skills into new ones \u2014 a growing toolbox.",
+      "reference": "Wang 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:Voyager",
+      "default_task_key": "code_gen",
+      "default_kwargs": {},
+      "needs": [
+        "embeddings",
+        "code-exec"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Recurring programmatic tasks that should get faster every time.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "agent-workflow-memory",
+      "class_name": "AgentWorkflowMemory",
+      "notebook": "35",
+      "family": "memory",
+      "family_label": "Memory",
+      "name": "AgentWorkflowMemory (#35)",
+      "one_liner": "Reusable workflow recipes",
+      "description": "After each solved task it mines a reusable 3\u20136-step recipe (extract) and indexes it; a new task retrieves the closest recipe (retrieve) and follows it instead of starting cold.",
+      "reference": "Wang 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:AgentWorkflowMemory",
+      "default_task_key": "math_word_awm",
+      "default_kwargs": {},
+      "needs": [
+        "embeddings"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "workflow_recipe_id"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Task families you solve repeatedly \u2014 the second one should be faster than the first.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n07-sequence-24x7-gated"
+      ],
+      "job_os_stages": [
+        "05_cegtec_outbound",
+        "07_telemetry_sync"
+      ],
+      "gtm_loops": [
+        "L2-playbook-draft-jev",
+        "L4-reply-triage-ml-adjust"
+      ],
+      "company_os_roles": [
+        "playbook-librarian"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "mental-loop",
+      "class_name": "MentalLoop",
+      "notebook": "10",
+      "family": "search",
+      "family_label": "Sampling & Search",
+      "name": "MentalLoop (#10)",
+      "one_liner": "Simulate \u2192 score \u2192 act",
+      "description": "Imagines candidate actions, simulates each one's outcome, scores the simulations with a deterministic rubric, commits to the winner, and explains the trade-off it accepted.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:MentalLoop",
+      "default_task_key": "planning_decide",
+      "default_kwargs": {
+        "branching": 2,
+        "max_steps": 2
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Decisions with real trade-offs: pick-a-strategy, resource allocation, option calls.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "tree-of-thoughts",
+      "class_name": "TreeOfThoughts",
+      "notebook": "09",
+      "family": "search",
+      "family_label": "Sampling & Search",
+      "name": "TreeOfThoughts (#09)",
+      "one_liner": "Beam search over thoughts",
+      "description": "Instead of one chain of reasoning: propose K deliberately-different next thoughts (generate), judge each on a strict 1\u20135 rubric (score), keep only the top beam (prune), and loop deeper \u2014 the best complete path wins.",
+      "reference": "Yao 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:TreeOfThoughts",
+      "default_task_key": "math_word",
+      "default_kwargs": {
+        "branching": 2,
+        "beam_width": 2,
+        "max_depth": 2
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Problems where the first idea is often wrong: math, constraint puzzles, tricky planning.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "self-consistency",
+      "class_name": "SelfConsistency",
+      "notebook": "21",
+      "family": "search",
+      "family_label": "Sampling & Search",
+      "name": "SelfConsistency (#21)",
+      "one_liner": "Sample N paths, majority vote",
+      "description": "Samples N diverse reasoning paths for the same question and majority-votes the final answers \u2014 correct reasoning converges while mistakes scatter.",
+      "reference": "Wang 2022",
+      "graph_entrypoint": "agentic_architectures.architectures:SelfConsistency",
+      "default_task_key": "trick_logic",
+      "default_kwargs": {
+        "n_samples": 3,
+        "sample_temperature": 0.7
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Math and logic one-shots where a single chain is flaky.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "lats",
+      "class_name": "LATS",
+      "notebook": "22",
+      "family": "search",
+      "family_label": "Sampling & Search",
+      "name": "LATS (#22)",
+      "one_liner": "MCTS tree with reward backup",
+      "description": "Monte-Carlo tree search over reasoning moves: pick the most promising leaf by UCB1 (select), generate K candidate next moves (expand), judge each with a deterministic reward rubric (evaluate), then propagate the reward up the tree (backup) \u2014 and loop.",
+      "reference": "Zhou 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:LATS",
+      "default_task_key": "math_word",
+      "default_kwargs": {
+        "max_iterations": 2,
+        "branching": 2,
+        "max_depth": 2
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Hard search problems worth many calls: agent trajectories, game-like tasks.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "ensemble",
+      "class_name": "Ensemble",
+      "notebook": "13",
+      "family": "search",
+      "family_label": "Sampling & Search",
+      "name": "Ensemble (#13)",
+      "one_liner": "N voters, weighted aggregation",
+      "description": "Fires N independent voters at the same task and aggregates their answers (majority vote or weighting) \u2014 independent errors cancel, agreement survives.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:Ensemble",
+      "default_task_key": "math_word_reflex",
+      "default_kwargs": {
+        "aggregation": "majority_vote"
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Cheap reliability boosts on short factual or numeric answers.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "multi-agent",
+      "class_name": "MultiAgent",
+      "notebook": "05",
+      "family": "multi",
+      "family_label": "Multi-Agent",
+      "name": "MultiAgent (#05)",
+      "one_liner": "Supervisor + specialists",
+      "description": "A supervisor routes the task to specialist agents (each with its own tools and persona), collects their contributions, and a writer synthesizes one answer.",
+      "reference": "LangGraph reference",
+      "graph_entrypoint": "agentic_architectures.architectures:MultiAgent",
+      "default_task_key": "creative_writing",
+      "default_kwargs": {},
+      "needs": [
+        "search"
+      ],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "specialist_roster"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Work spanning domains: research + numbers + copy in one deliverable.",
+      "rig_lanes": [
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [
+        "L2-playbook-draft-jev"
+      ],
+      "company_os_roles": [
+        "department-supervisor"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "blackboard",
+      "class_name": "Blackboard",
+      "notebook": "07",
+      "family": "multi",
+      "family_label": "Multi-Agent",
+      "name": "Blackboard (#07)",
+      "one_liner": "Shared workspace, cooperating agents",
+      "description": "All specialists share one workspace. Each round every agent bids on whether it can contribute (bidding), the best bid writes to the board (act), and the loop repeats until synthesize merges the board into the final answer.",
+      "reference": "classical AI",
+      "graph_entrypoint": "agentic_architectures.architectures:Blackboard",
+      "default_task_key": "creative_writing",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "board_id"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Open-ended creative or analysis work where you can't script who should speak when.",
+      "rig_lanes": [
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [
+        "L4-reply-triage-ml-adjust"
+      ],
+      "company_os_roles": [
+        "shared-work-canvas"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "meta-controller",
+      "class_name": "MetaController",
+      "notebook": "11",
+      "family": "multi",
+      "family_label": "Multi-Agent",
+      "name": "MetaController (#11)",
+      "one_liner": "Router over architectures",
+      "description": "A router over other architectures: classifies the incoming task and dispatches it to the best-fitting pattern in its roster (here planning vs reflection), returning that pattern's result.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:MetaController",
+      "default_task_key": "planning_task",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "candidate_patterns",
+        "jev_decision_id"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "A front door for mixed workloads \u2014 one endpoint, many task shapes.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n08-ml-bandit-loop"
+      ],
+      "job_os_stages": [
+        "08_interview_verifier"
+      ],
+      "gtm_loops": [
+        "L5-weekly-architect-audit"
+      ],
+      "company_os_roles": [
+        "chief-router",
+        "jake-conductor"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "debate",
+      "class_name": "Debate",
+      "notebook": "28",
+      "family": "multi",
+      "family_label": "Multi-Agent",
+      "name": "Debate (#28)",
+      "one_liner": "N agents argue for K rounds",
+      "description": "N agents answer independently, then read each other's positions and argue across K rounds (the round loop), before a judge/vote settles the disagreement (vote).",
+      "reference": "Du 2023",
+      "graph_entrypoint": "agentic_architectures.architectures:Debate",
+      "default_task_key": "trick_logic",
+      "default_kwargs": {
+        "n_agents": 2,
+        "n_rounds": 2
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "proposal",
+        "dissent_log"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Contested questions where single-model bias is the worry.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [
+        "08_interview_verifier"
+      ],
+      "gtm_loops": [
+        "L5-weekly-architect-audit"
+      ],
+      "company_os_roles": [
+        "council-red-team"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "storm",
+      "class_name": "STORM",
+      "notebook": "30",
+      "family": "multi",
+      "family_label": "Multi-Agent",
+      "name": "STORM (#30)",
+      "one_liner": "Multi-perspective research \u2192 article",
+      "description": "Spawns multiple personas (perspectives), each interviews the topic with pointed questions, answers ground them, an outline organizes it all, and write produces the article.",
+      "reference": "Shao 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:STORM",
+      "default_task_key": "research_synthesis",
+      "default_kwargs": {
+        "n_perspectives": 2,
+        "questions_per_perspective": 1
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "topic",
+        "perspectives"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Long-form balanced research: wiki-style articles, briefing docs.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [
+        "03_triangle_research"
+      ],
+      "gtm_loops": [
+        "L1-overnight-intel"
+      ],
+      "company_os_roles": [
+        "deep-research-brief"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "dry-run",
+      "class_name": "DryRun",
+      "notebook": "14",
+      "family": "safety",
+      "family_label": "Safety & Routing",
+      "name": "DryRun (#14)",
+      "one_liner": "Propose \u2192 simulate \u2192 approval gate",
+      "description": "Nothing executes directly: the agent proposes an action, a simulator predicts its effect, and a reviewer approves or blocks BEFORE anything runs \u2014 destructive requests die in review.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:DryRun",
+      "default_task_key": "safety_destructive",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "draft_text",
+        "outreach_sha12",
+        "approval_sha12"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Any agent allowed near real systems: shell commands, DB writes, outbound email.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n07-sequence-24x7-gated"
+      ],
+      "job_os_stages": [
+        "gate_d_approval_pause",
+        "05_cegtec_outbound"
+      ],
+      "gtm_loops": [
+        "L3-daytime-gated-dispatch"
+      ],
+      "company_os_roles": [
+        "gate-d-controller"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "reflexive-metacognitive",
+      "class_name": "ReflexiveMetacognitive",
+      "notebook": "17",
+      "family": "safety",
+      "family_label": "Safety & Routing",
+      "name": "ReflexiveMetacognitive (#17)",
+      "one_liner": "Self-aware capability routing",
+      "description": "Before answering, the agent assesses its OWN competence for this request and routes accordingly: answer, hedge with caveats, or escalate to a human \u2014 self-awareness as a safety gate.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:ReflexiveMetacognitive",
+      "default_task_key": "route_medical",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "posted_days_ago",
+        "live_open_verdict",
+        "roi_score"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "High-stakes triage: medical, legal, financial questions.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n01-signal-scout"
+      ],
+      "job_os_stages": [
+        "02_jd_gatekeeper"
+      ],
+      "gtm_loops": [
+        "L1-overnight-intel",
+        "L5-weekly-architect-audit"
+      ],
+      "company_os_roles": [
+        "risk-gatekeeper"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "computer-use",
+      "class_name": "ComputerUse",
+      "notebook": "34",
+      "family": "safety",
+      "family_label": "Safety & Routing",
+      "name": "ComputerUse (#34)",
+      "one_liner": "Mock GUI loop + deterministic gate",
+      "description": "Drives a (mock) GUI through a strict loop: observe screen state, choose ONE categorical action (navigate / click / type), pass a deterministic safety gate, repeat.",
+      "reference": "Anthropic 2024",
+      "graph_entrypoint": "agentic_architectures.architectures:ComputerUse",
+      "default_task_key": "safety_domain",
+      "default_kwargs": {
+        "max_iterations": 3,
+        "initial_screen": {
+          "url": "https://example.com",
+          "elements": [],
+          "fields": {},
+          "submitted": false
+        },
+        "blocked_domains": [
+          "evil-phishing.com"
+        ]
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": true,
+      "recommended_for": "Studying the computer-use loop and safety gating without a real browser.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "rlhf-self-improvement",
+      "class_name": "RLHFSelfImprovement",
+      "notebook": "15",
+      "family": "specialty",
+      "family_label": "Specialty",
+      "name": "RLHFSelfImprovement (#15)",
+      "one_liner": "Multi-dim scoring + best-of archive",
+      "description": "Generates candidates, scores them across explicit dimensions with deterministic rubrics, archives the best-so-far, and iterates against its own archive \u2014 self-play for quality.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:RLHFSelfImprovement",
+      "default_task_key": "creative_writing",
+      "default_kwargs": {},
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task",
+        "redacted_outcomes",
+        "judge_receipt"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Squeezing quality on small artifacts: taglines, prompts, product copy.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [
+        "n08-ml-bandit-loop"
+      ],
+      "job_os_stages": [
+        "07_telemetry_sync",
+        "08_interview_verifier"
+      ],
+      "gtm_loops": [
+        "L4-reply-triage-ml-adjust",
+        "L5-weekly-architect-audit"
+      ],
+      "company_os_roles": [
+        "ml-bandit-optimizer"
+      ],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "cellular-automata",
+      "class_name": "CellularAutomata",
+      "notebook": "16",
+      "family": "specialty",
+      "family_label": "Specialty",
+      "name": "CellularAutomata (#16)",
+      "one_liner": "LLM rules over a grid world",
+      "description": "A grid where every cell is a tiny LLM agent that reads its neighbours and an English rule, then updates in sync each step \u2014 global behaviour emerges from purely local decisions.",
+      "reference": "this repo",
+      "graph_entrypoint": "agentic_architectures.architectures:CellularAutomata",
+      "default_task_key": "emergent_sim",
+      "default_kwargs": {
+        "rule_prompt": "A 'tree' cell next to a 'fire' cell becomes 'fire'. 'fire' becomes 'ash' next step. 'ash' stays 'ash'. 'empty' stays 'empty'.",
+        "allowed_states": [
+          "empty",
+          "tree",
+          "fire",
+          "ash"
+        ],
+        "height": 3,
+        "width": 3,
+        "max_steps": 2
+      },
+      "needs": [],
+      "required_state_keys": [
+        "lane",
+        "reconcile_owner",
+        "run_id",
+        "task"
+      ],
+      "state_passthrough_keys": [
+        "lane",
+        "reconcile_owner"
+      ],
+      "draft_only_default": true,
+      "supports_gate_d_interrupt": false,
+      "recommended_for": "Simulations and emergence demos: spread models, ecosystem toys.",
+      "rig_lanes": [
+        "JOB",
+        "RIG",
+        "COMPANY_OS"
+      ],
+      "job_os_nodes": [],
+      "job_os_stages": [],
+      "gtm_loops": [],
+      "company_os_roles": [],
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    }
+  ]
+}

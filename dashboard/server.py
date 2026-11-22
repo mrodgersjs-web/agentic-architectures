@@ -9,14 +9,19 @@ Agentic Architectures Arena — dashboard + Codex bridge server (one process, po
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-import codex_shim
-
 HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import codex_shim
+from patterns.rig_architect_router import router as rig_architect_router
 
 app = FastAPI(title="Agentic Architectures Arena")
 
@@ -32,6 +37,7 @@ async def no_store(request, call_next):
 
 
 app.include_router(codex_shim.router)
+app.include_router(rig_architect_router)
 
 try:
     import arena_runner  # noqa: E402  (needs the arena venv; shim works without it)

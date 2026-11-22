@@ -27,11 +27,12 @@ from fastapi.responses import JSONResponse, StreamingResponse
 HERE = Path(__file__).resolve().parent
 DEMO = HERE.parent
 PORT = os.environ.get("ARENA_PORT", "8035")
+LLM_BASE_URL = os.environ.get("ARENA_LLM_BASE_URL", f"http://127.0.0.1:{PORT}/v1")
 os.environ.setdefault("LLM_PROVIDER", "openai")
-os.environ.setdefault("LLM_MODEL", "codex")
-os.environ.setdefault("OPENAI_API_KEY", "sk-local-codex-subscription")
-os.environ.setdefault("OPENAI_BASE_URL", f"http://127.0.0.1:{PORT}/v1")
-os.environ.setdefault("OPENAI_API_BASE", f"http://127.0.0.1:{PORT}/v1")
+os.environ.setdefault("LLM_MODEL", os.environ.get("ARENA_LLM_MODEL", "codex"))
+os.environ.setdefault("OPENAI_API_KEY", os.environ.get("RIG_LITELLM_API_KEY", "sk-local-codex-subscription"))
+os.environ.setdefault("OPENAI_BASE_URL", LLM_BASE_URL)
+os.environ.setdefault("OPENAI_API_BASE", LLM_BASE_URL)
 os.environ.setdefault("EMBEDDINGS_PROVIDER", "ollama")
 os.environ.setdefault("EMBEDDINGS_MODEL", os.environ.get("ARENA_EMBED_MODEL", "nomic-embed-text"))
 os.environ.setdefault("LANGCHAIN_TRACING_V2", "false")

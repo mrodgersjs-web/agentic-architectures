@@ -1,0 +1,147 @@
+{
+  "schema_version": "rig.architect.rollout.v1",
+  "pattern_catalog_repo": "mrodgersjs-web/agentic-architectures",
+  "api_contract": {
+    "catalog_endpoint": "GET /api/patterns",
+    "recommend_endpoint": "POST /api/patterns/recommend",
+    "dry_run_endpoint": "POST /api/patterns/{id}/dry-run",
+    "blueprint_dry_run_endpoint": "POST /api/blueprints/{name}/dry-run",
+    "goodbad_endpoint": "GET /api/goodbad",
+    "architect_ui_endpoint": "GET /architect",
+    "bama_cli": "rig-patterns",
+    "mcp_server": "rig-patterns mcp",
+    "passthrough_keys": [
+      "lane",
+      "reconcile_owner"
+    ],
+    "default_mode": "draft_only"
+  },
+  "repos": [
+    {
+      "repo": "mrodgersjs-web/job-search-os",
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "coordinator": "job-search-os-lane",
+      "integration_surface": [
+        "blueprints/job-search-os-architect.json (OWNERS.yaml: architect-blueprint)",
+        "workflows/job_pipeline.py via PatternBackedHooks (PipelineHooks protocol)",
+        "canvas/job-search-os/nodes/n01..n08.yaml optional agentic_pattern_id metadata"
+      ],
+      "primary_patterns": [
+        "react",
+        "reflexive-metacognitive",
+        "chain-of-verification",
+        "pev",
+        "reflection",
+        "graph-rag",
+        "self-discover",
+        "dry-run",
+        "browser-agent",
+        "rlhf-self-improvement"
+      ],
+      "supabase_schema": "public.job_*",
+      "hard_floors": "F1-F8 + 70/30 networking split + No-Oracle + Gate-D sha12"
+    },
+    {
+      "repo": "mrodgersjs-web/rig-gtm-studio-v2 + mrodgersjs-web/clients-ai-jobs",
+      "lane": "RIG",
+      "reconcile_owner": "RIG",
+      "coordinator": "gtm-studio-architect-lane",
+      "integration_surface": [
+        "contracts/gtm_studio/one_gtm_harness_manifest.json",
+        "server/rig-api/gtm-studio-architect.js (GET /api/rig/gtm-harness/architect)"
+      ],
+      "loop_bindings": {
+        "L1-overnight-intel": [
+          "graph-rag",
+          "agentic-rag",
+          "react"
+        ],
+        "L2-playbook-draft-jev": [
+          "pev",
+          "constitutional-ai",
+          "reflection"
+        ],
+        "L3-daytime-gated-dispatch": [
+          "dry-run",
+          "browser-agent"
+        ],
+        "L4-reply-triage-ml-adjust": [
+          "episodic-semantic-agent",
+          "rlhf-self-improvement",
+          "agent-workflow-memory"
+        ],
+        "L5-weekly-architect-audit": [
+          "debate",
+          "reflexion",
+          "meta-controller"
+        ]
+      },
+      "supabase_schema": "gtm.*",
+      "hard_floors": "No-Oracle + active-job-search company exclusion + Gate-D sha12 + Jev fail-closed"
+    },
+    {
+      "repo": "mrodgersjs-web/rig-company-os + mrodgersjs-web/rig-agent-firm",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "coordinator": "company-os-architect-lane",
+      "integration_surface": [
+        "blueprints/company-os-architect.json (OWNERS.yaml: architect-blueprint)",
+        "canvas/intake/nodes/{sourcing,dossier,chassis,skills,bridge,evolution}.yaml",
+        "harnesses/01-onboarding..05-handoff.md"
+      ],
+      "primary_patterns": [
+        "react",
+        "chain-of-verification",
+        "pev",
+        "voyager",
+        "dry-run",
+        "rlhf-self-improvement",
+        "meta-controller",
+        "blackboard",
+        "debate"
+      ],
+      "supabase_schema": "shared company-os (isolated from gtm.* and public.job_*)",
+      "hard_floors": "Gate-D approval for outward/paid/public actions + Jev fail-closed"
+    },
+    {
+      "repo": "mrodgersjs-web/rig-enhanced-evals + mrodgersjs-web/rig-enhanced-guardrails",
+      "lane": "GENERAL",
+      "reconcile_owner": "RIG",
+      "coordinator": "eval-gate-lane",
+      "integration_surface": [
+        "Verification harnesses & adversarial benchmark fixtures"
+      ],
+      "primary_patterns": [
+        "chain-of-verification",
+        "constitutional-ai",
+        "self-consistency",
+        "ensemble",
+        "reflexive-metacognitive",
+        "dry-run"
+      ],
+      "supabase_schema": "none (local/CI proof packets)",
+      "hard_floors": "Independent judge (writer never approves own output) + 0/1/2 exit semantics"
+    },
+    {
+      "repo": "mrodgersjs-web/agentic-workflows + mrodgersjs-web/rig-skills",
+      "lane": "GENERAL",
+      "reconcile_owner": "RIG",
+      "coordinator": "skill-surface-lane",
+      "integration_surface": [
+        "Reusable skill & workflow libraries across Aside/Codex/Claude/Autark"
+      ],
+      "primary_patterns": [
+        "planning",
+        "pev",
+        "tool-use",
+        "voyager",
+        "agent-workflow-memory",
+        "swe-agent",
+        "lats"
+      ],
+      "supabase_schema": "none",
+      "hard_floors": "Draft-only outward + deterministic verification"
+    }
+  ]
+}
