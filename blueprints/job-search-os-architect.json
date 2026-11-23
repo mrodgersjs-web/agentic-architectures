@@ -1,0 +1,388 @@
+{
+  "schema_version": "rig.architect.blueprint.v1",
+  "blueprint_id": "job-search-os-agentic-architectures",
+  "target_repo": "mrodgersjs-web/job-search-os",
+  "target_owner_rule": "architect-blueprint (OWNERS.yaml -> blueprints/**)",
+  "pattern_catalog_repo": "mrodgersjs-web/agentic-architectures",
+  "pattern_catalog_ref": "patterns/registry.json",
+  "composer_engine": "patterns.composer:compile_blueprint_to_langgraph",
+  "bama_cli": "rig-patterns",
+  "proof_chain_required": true,
+  "lane": "JOB",
+  "reconcile_owner": "JOB",
+  "mode": "draft_only",
+  "effort_split_doctrine": {
+    "networking_min": 0.7,
+    "applying_max": 0.3
+  },
+  "hard_floors": [
+    "F1:no_oracle",
+    "F2:past_14d_live_open",
+    "F3:roi_fit_cutline",
+    "F4:effort_split_70_30",
+    "F5:job_identity_email",
+    "F6:truth_and_style",
+    "F7:jev_fail_closed",
+    "F8:gate_d_exact_text"
+  ],
+  "llm_backends": {
+    "primary": {
+      "name": "rig-litellm-gateway",
+      "base_url": "http://127.0.0.1:18770/v1",
+      "default_model": "rig-auto"
+    },
+    "zero_api_cost_fallback": {
+      "name": "agentic-architectures-codex-shim",
+      "base_url": "http://127.0.0.1:8035/v1",
+      "default_model": "codex"
+    }
+  },
+  "nodes": [
+    {
+      "id": "n01-signal-scout",
+      "canvas_node_id": "n01-signal-scout",
+      "canvas_lane": "Discovery & Sales Nav",
+      "langgraph_stages": [
+        "01_signal_scout",
+        "02_jd_gatekeeper"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "react",
+      "supporting_pattern_ids": [
+        "reflexive-metacognitive",
+        "agentic-rag"
+      ],
+      "pattern_family": "tools",
+      "owner_agent": "job-discover",
+      "inputs": [
+        "source-posting-receipt"
+      ],
+      "outputs": [
+        "qualified-role-record"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate signal_scout",
+      "metric": "qualified postings with current open-status receipt",
+      "floors_enforced": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.signal_scout",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "n02-executive-writing",
+      "canvas_node_id": "n02-executive-writing",
+      "canvas_lane": "Writing & Content",
+      "langgraph_stages": [
+        "04_truth_resume_craft"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "chain-of-verification",
+      "supporting_pattern_ids": [
+        "corrective-rag"
+      ],
+      "pattern_family": "reflect",
+      "owner_agent": "job-packet",
+      "inputs": [
+        "role-requirement-map-and-corpus-excerpts"
+      ],
+      "outputs": [
+        "claim-bound-executive-copy"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate executive_writing",
+      "metric": "claims grounded in verified corpus evidence",
+      "floors_enforced": [
+        "F6",
+        "F7"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.executive_writing",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "n03-resume-formatting",
+      "canvas_node_id": "n03-resume-formatting",
+      "canvas_lane": "Resume Craft",
+      "langgraph_stages": [
+        "04_truth_resume_craft"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "pev",
+      "supporting_pattern_ids": [
+        "constitutional-ai"
+      ],
+      "pattern_family": "tools",
+      "owner_agent": "job-packet",
+      "inputs": [
+        "approved-master-v4-and-slot-overrides"
+      ],
+      "outputs": [
+        "clean-resume-package-audit"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate resume_formatting",
+      "metric": "clean packages within three pages",
+      "floors_enforced": [
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.resume_formatting",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "n04-positive-comment",
+      "canvas_node_id": "n04-positive-comment",
+      "canvas_lane": "Stage 0 Warm-Up",
+      "langgraph_stages": [
+        "05_cegtec_outbound"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "reflection",
+      "supporting_pattern_ids": [
+        "constitutional-ai"
+      ],
+      "pattern_family": "reflect",
+      "owner_agent": "job-brand",
+      "inputs": [
+        "recent-post-verification-receipt"
+      ],
+      "outputs": [
+        "held-comment-draft"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate positive_comment",
+      "metric": "specific eligible comment drafts within cap",
+      "floors_enforced": [
+        "F1",
+        "F4",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.positive_comment",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "n05-hm-peer-dm",
+      "canvas_node_id": "n05-hm-peer-dm",
+      "canvas_lane": "70% Triangle Outbound",
+      "langgraph_stages": [
+        "03_triangle_research",
+        "05_cegtec_outbound"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "graph-rag",
+      "supporting_pattern_ids": [
+        "episodic-semantic-agent",
+        "storm"
+      ],
+      "pattern_family": "rag",
+      "owner_agent": "job-network",
+      "inputs": [
+        "verified-persona-context-and-thread-state"
+      ],
+      "outputs": [
+        "held-hm-peer-connect-or-dm"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate hm_peer_dm",
+      "metric": "substantive reciprocal replies per accepted connection",
+      "floors_enforced": [
+        "F1",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.hm_peer_dm",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "n06-recruiter-outreach",
+      "canvas_node_id": "n06-recruiter-outreach",
+      "canvas_lane": "70% Triangle Outbound",
+      "langgraph_stages": [
+        "05_cegtec_outbound"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "self-discover",
+      "supporting_pattern_ids": [
+        "chain-of-verification"
+      ],
+      "pattern_family": "reflect",
+      "owner_agent": "job-network",
+      "inputs": [
+        "verified-role-req-and-channel-evidence"
+      ],
+      "outputs": [
+        "held-recruiter-connect-or-inmail"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate recruiter_outreach",
+      "metric": "substantive recruiter replies per outreach touch",
+      "floors_enforced": [
+        "F1",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.recruiter_outreach",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "n07-sequence-24x7-gated",
+      "canvas_node_id": "n07-sequence-24x7-gated",
+      "canvas_lane": "24/7 RIG Clients Orchestrator",
+      "langgraph_stages": [
+        "gate_d_approval_pause",
+        "05_cegtec_outbound",
+        "06_aside_form_runner"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "dry-run",
+      "supporting_pattern_ids": [
+        "browser-agent",
+        "agent-workflow-memory"
+      ],
+      "pattern_family": "safety",
+      "owner_agent": "job-harness",
+      "inputs": [
+        "drafts-thread-state-approval-and-cap-receipts"
+      ],
+      "outputs": [
+        "held-queue-decision-or-close-record"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate sequence_24x7",
+      "metric": "networking share of planned effort slots",
+      "floors_enforced": [
+        "F1",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.sequence_24x7",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "n08-ml-bandit-loop",
+      "canvas_node_id": "n08-ml-bandit-loop",
+      "canvas_lane": "ML & Verification",
+      "langgraph_stages": [
+        "07_telemetry_sync",
+        "08_interview_verifier"
+      ],
+      "lane": "JOB",
+      "reconcile_owner": "JOB",
+      "agentic_pattern_id": "rlhf-self-improvement",
+      "supporting_pattern_ids": [
+        "reflexion",
+        "meta-controller",
+        "debate"
+      ],
+      "pattern_family": "specialty",
+      "owner_agent": "job-harness",
+      "inputs": [
+        "redacted-outcomes-and-independent-judge-receipt"
+      ],
+      "outputs": [
+        "draft-only-arm-recommendation"
+      ],
+      "gate_command": "harness/hooks/canvas_gate_runner.py --gate ml_bandit_loop",
+      "metric": "independently graded privacy-safe preference pairs",
+      "floors_enforced": [
+        "F7"
+      ],
+      "verification_gate": {
+        "jev_rubric": "job.ml_bandit_loop",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    }
+  ]
+}

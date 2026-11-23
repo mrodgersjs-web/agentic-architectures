@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RIG Agentic Architect Cockpit</title>
+  <style>
+    :root {
+      --bg: #0c1017;
+      --panel: #141b26;
+      --panel-2: #1a2332;
+      --border: #263247;
+      --text: #e6edf7;
+      --muted: #8ea0b8;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #38bdf8;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.45;
+    }
+    header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      background: #101621;
+    }
+    h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+    .pill.ok { border-color: rgba(34,197,94,0.45); color: #86efac; background: rgba(34,197,94,0.12); }
+    .pill.hold { border-color: rgba(245,158,11,0.45); color: #fcd34d; background: rgba(245,158,11,0.12); }
+    .pill.block { border-color: rgba(239,68,68,0.45); color: #fca5a5; background: rgba(239,68,68,0.12); }
+    main { max-width: 1340px; margin: 0 auto; padding: 22px 28px 40px; display: grid; gap: 20px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+    }
+    button.active, button.primary {
+      background: #0ea5e9;
+      border-color: #38bdf8;
+      color: #06131f;
+    }
+    button:hover { opacity: 0.92; }
+    .grid-2 { display: grid; grid-template-columns: minmax(420px, 1.15fr) minmax(0, 1fr); gap: 18px; }
+    .grid-2 > * { min-width: 0; }
+    @media (max-width: 980px) { .grid-2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      min-width: 0;
+    }
+    .card h2 { margin: 0 0 10px; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .node-list { display: grid; gap: 10px; }
+    .node {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      display: grid;
+      gap: 5px;
+    }
+    .node-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .node-id { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--blue); }
+    .node-meta { font-size: 12px; color: var(--muted); }
+    .tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(56,189,248,0.12);
+      border: 1px solid rgba(56,189,248,0.35);
+      color: #bae6fd;
+    }
+    .tag.sup { background: rgba(148,163,184,0.1); border-color: rgba(148,163,184,0.3); color: #cbd5e1; }
+    .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    input, select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      flex: 1;
+      min-width: 150px;
+    }
+    pre {
+      margin: 8px 0 0;
+      padding: 12px;
+      background: #080b10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 290px;
+      color: #cbd5e1;
+    }
+    .gb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-top: 10px; }
+    .gb-item {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>RIG Agentic Architect Cockpit</h1>
+      <div class="sub">35 Agentic AI Design Patterns (36 classes) compiled to LangGraph with hash-chained ProofPackets, F1-F8 floors, and Gate-D sha12 pause</div>
+    </div>
+    <div class="pills" id="health-pills">
+      <span class="pill">Loading telemetry...</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="tabs">
+      <button class="active" data-bp="job-search-os">Job Search OS (8 Nodes)</button>
+      <button data-bp="gtm-studio">One RIG GTM Studio (5 Loops)</button>
+      <button data-bp="company-os">RIG Company OS (6 Intake Nodes)</button>
+      <button class="primary" id="run-bp-btn">Run Compiled LangGraph Dry-Run</button>
+    </div>
+
+    <div class="grid-2">
+      <section class="card">
+        <h2>
+          <span id="bp-title">Blueprint Nodes</span>
+          <span class="pill" id="bp-meta">draft_only</span>
+        </h2>
+        <div class="node-list" id="node-list"></div>
+      </section>
+
+      <div style="display:grid; gap:18px; align-content:start;">
+        <section class="card">
+          <h2>LangGraph Dry-Run &amp; Hash-Chained ProofPacket <span class="pill" id="dryrun-badge">ready</span></h2>
+          <div class="form-row">
+            <input id="dr-company" value="Acme AI" placeholder="Target company (try Oracle)">
+            <input id="dr-draft" value="Hi Jordan, saw Acme AI is expanding its agent platform in Denver. Happy to connect." placeholder="Draft text">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);">
+              <input type="checkbox" id="dr-outward" style="flex:none;min-width:auto;"> Simulate Gate-D Outward
+            </label>
+          </div>
+          <pre id="dryrun-out">Click "Run Compiled LangGraph Dry-Run" to execute the blueprint graph.</pre>
+        </section>
+
+        <section class="card">
+          <h2>Pattern Recommender &amp; Anti-Pattern Guard</h2>
+          <div class="form-row">
+            <input id="rec-task" value="verify resume claims against career corpus before Gate-D" placeholder="Describe a workflow node...">
+            <select id="rec-lane" style="max-width:140px;">
+              <option value="JOB">JOB</option>
+              <option value="RIG">RIG</option>
+              <option value="COMPANY_OS">COMPANY_OS</option>
+            </select>
+            <button id="rec-btn">Recommend</button>
+          </div>
+          <pre id="rec-out">Waiting for query...</pre>
+        </section>
+      </div>
+    </div>
+
+    <section class="card">
+      <h2>
+        <span>Adversarial Executable GOOD / BAD Gate Suite (JOB + RIG + COMPANY_OS)</span>
+        <span class="pill ok" id="gb-summary">Running...</span>
+      </h2>
+      <div class="gb-grid" id="gb-grid"></div>
+    </section>
+  </main>
+
+  <script>
+    let activeBp = "job-search-os";
+
+    async function loadHealth() {
+      const r = await fetch("/api/architect/health");
+      const h = await r.json();
+      const pills = document.getElementById("health-pills");
+      pills.innerHTML = [
+        `<span class="pill ok">CATALOG: ${h.pattern_count} classes / 35 patterns</span>`,
+        `<span class="pill ok">GOOD/BAD: ${h.goodbad_suite.good_passed}/${h.goodbad_suite.good_total} PASS &middot; ${h.goodbad_suite.bad_caught}/${h.goodbad_suite.bad_total} CAUGHT</span>`,
+        `<span class="pill">SHA: ${h.registry_sha256.slice(0, 12)}</span>`,
+        `<span class="pill ok">MODE: draft_only (live_send=false)</span>`
+      ].join("");
+    }
+
+    async function loadBlueprint(name) {
+      activeBp = name;
+      document.querySelectorAll(".tabs button[data-bp]").forEach(b => {
+        b.classList.toggle("active", b.dataset.bp === name);
+      });
+      const r = await fetch(`/api/blueprints/${name}`);
+      const bp = await r.json();
+      document.getElementById("bp-title").textContent = `${bp.target_repo} (${bp.nodes.length} nodes)`;
+      document.getElementById("bp-meta").textContent = `lane=${bp.lane} | owner=${bp.reconcile_owner} | ${bp.mode}`;
+      const list = document.getElementById("node-list");
+      list.innerHTML = bp.nodes.map(n => `
+        <div class="node">
+          <div class="node-head">
+            <span class="node-id">${n.id}</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <span class="tag">${n.agentic_pattern_id}</span>
+              ${(n.supporting_pattern_ids || []).map(s => `<span class="tag sup">+${s}</span>`).join("")}
+            </div>
+          </div>
+          <div class="node-meta">Lane: <b>${n.canvas_lane || n.lane}</b> &middot; Owner: <code>${n.owner_agent}</code> &middot; Gate-D: <b>${n.verification_gate.gate_d_required ? "REQUIRED" : "inward"}</b></div>
+          <div class="node-meta">Metric: ${n.metric}</div>
+        </div>
+      `).join("");
+    }
+
+    async function runDryRun() {
+      const payload = {
+        company: document.getElementById("dr-company").value,
+        draft_text: document.getElementById("dr-draft").value,
+        simulate_outward: document.getElementById("dr-outward").checked,
+      };
+      const r = await fetch(`/api/blueprints/${activeBp}/dry-run`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+      });
+      const res = await r.json();
+      const badge = document.getElementById("dryrun-badge");
+      badge.textContent = `${res.outcome} (exit ${res.exit_code})`;
+      badge.className = "pill " + (res.exit_code === 0 ? "ok" : (res.exit_code === 1 ? "hold" : "block"));
+      document.getElementById("dryrun-out").textContent = JSON.stringify({
+        blueprint_id: res.blueprint_id,
+        lane: res.lane,
+        reconcile_owner: res.reconcile_owner,
+        outcome: res.outcome,
+        exit_code: res.exit_code,
+        live_send: res.live_send,
+        nodes_executed: `${res.nodes_executed}/${res.nodes_total}`,
+        gate_d_paused_at: res.gate_d_paused_at,
+        draft_sha12: res.draft_sha12,
+        proof_chain_head: res.proof_chain_head,
+        halted_reason: res.halted_reason,
+        patterns_run: res.node_traces.map(t => `${t.node_id}:${t.agentic_pattern_id}(${t.outcome})`),
+      }, null, 2);
+    }
+
+    async function runRecommend() {
+      const r = await fetch("/api/patterns/recommend", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          task: document.getElementById("rec-task").value,
+          lane: document.getElementById("rec-lane").value,
+          top_k: 3,
+        }),
+      });
+      const res = await r.json();
+      document.getElementById("rec-out").textContent = JSON.stringify(res, null, 2);
+    }
+
+    async function loadGoodBad() {
+      const r = await fetch("/api/goodbad?suite=all");
+      const gb = await r.json();
+      document.getElementById("gb-summary").textContent =
+        `GOOD ${gb.good_passed}/${gb.good_total} PASS | BAD ${gb.bad_caught}/${gb.bad_total} CAUGHT`;
+      const all = [
+        ...gb.good_results.map(x => ({...x, kind: "GOOD"})),
+        ...gb.bad_results.map(x => ({...x, kind: "BAD"})),
+      ];
+      document.getElementById("gb-grid").innerHTML = all.map(x => `
+        <div class="gb-item">
+          <span>${x.id}</span>
+          <span class="pill ${x.ok ? "ok" : "block"}">${x.outcome} (${x.actual_exit})</span>
+        </div>
+      `).join("");
+    }
+
+    document.querySelectorAll(".tabs button[data-bp]").forEach(btn => {
+      btn.addEventListener("click", () => loadBlueprint(btn.dataset.bp));
+    });
+    document.getElementById("run-bp-btn").addEventListener("click", runDryRun);
+    document.getElementById("rec-btn").addEventListener("click", runRecommend);
+
+    (async () => {
+      await Promise.all([loadHealth(), loadBlueprint("job-search-os"), loadGoodBad()]);
+      await runDryRun();
+      await runRecommend();
+    })();
+  </script>
+</body>
+</html>

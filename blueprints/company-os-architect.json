@@ -1,0 +1,235 @@
+{
+  "schema_version": "rig.architect.blueprint.v1",
+  "blueprint_id": "company-os-agentic-architectures",
+  "target_repo": "mrodgersjs-web/rig-company-os",
+  "companion_repo": "mrodgersjs-web/rig-agent-firm",
+  "target_owner_rule": "architect-blueprint (OWNERS.yaml -> blueprints/**)",
+  "pattern_catalog_repo": "mrodgersjs-web/agentic-architectures",
+  "pattern_catalog_ref": "patterns/registry.json",
+  "composer_engine": "patterns.composer:compile_blueprint_to_langgraph",
+  "bama_cli": "rig-patterns",
+  "lane": "COMPANY_OS",
+  "reconcile_owner": "COMPANY_OS",
+  "mode": "draft_only",
+  "proof_chain_required": true,
+  "approval_banded_harnesses": [
+    "harnesses/01-onboarding.md",
+    "harnesses/02-catalog-quoting.md",
+    "harnesses/03-billing.md",
+    "harnesses/04-kanban-sla.md",
+    "harnesses/05-handoff.md"
+  ],
+  "nodes": [
+    {
+      "id": "sourcing",
+      "canvas_node_id": "sourcing",
+      "canvas_lane": "Proof Portal Intake / Sourcing",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "agentic_pattern_id": "react",
+      "supporting_pattern_ids": [
+        "agentic-rag",
+        "storm"
+      ],
+      "pattern_family": "tools",
+      "owner_agent": "company-os-scout",
+      "inputs": [
+        "candidate-source-repos",
+        "license-policy"
+      ],
+      "outputs": [
+        "pinned-source-manifest"
+      ],
+      "gate_command": "python3 workflows/canvas_compiler.py --canvas-dir canvas --verify",
+      "metric": "every consolidated source pinned to commit SHA and vetted license",
+      "verification_gate": {
+        "jev_rubric": "company_os.sourcing",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "dossier",
+      "canvas_node_id": "dossier",
+      "canvas_lane": "Proof Portal Intake / Dossier",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "agentic_pattern_id": "chain-of-verification",
+      "supporting_pattern_ids": [
+        "corrective-rag",
+        "storm"
+      ],
+      "pattern_family": "reflect",
+      "owner_agent": "company-os-analyst",
+      "inputs": [
+        "pinned-source-manifest",
+        "client-intake-evidence"
+      ],
+      "outputs": [
+        "verified-client-dossier"
+      ],
+      "gate_command": "python3 workflows/canvas_compiler.py --canvas-dir canvas --verify",
+      "metric": "100% dossier claims source-cited with zero unverified numbers",
+      "verification_gate": {
+        "jev_rubric": "company_os.dossier",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "chassis",
+      "canvas_node_id": "chassis",
+      "canvas_lane": "Proof Portal Intake / Chassis",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "agentic_pattern_id": "pev",
+      "supporting_pattern_ids": [
+        "planning",
+        "blackboard"
+      ],
+      "pattern_family": "tools",
+      "owner_agent": "company-os-architect",
+      "inputs": [
+        "verified-client-dossier",
+        "proof-portal-intake-manifest"
+      ],
+      "outputs": [
+        "verified-intake-chassis"
+      ],
+      "gate_command": "python3 workflows/canvas_compiler.py --canvas-dir canvas --verify",
+      "metric": "all 5 approval-banded harnesses compile and pass golden verification",
+      "verification_gate": {
+        "jev_rubric": "company_os.chassis",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    },
+    {
+      "id": "skills",
+      "canvas_node_id": "skills",
+      "canvas_lane": "Proof Portal Intake / Skills",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "agentic_pattern_id": "voyager",
+      "supporting_pattern_ids": [
+        "agent-workflow-memory",
+        "constitutional-ai"
+      ],
+      "pattern_family": "memory",
+      "owner_agent": "company-os-skill-steward",
+      "inputs": [
+        "verified-intake-chassis",
+        "skill-surface-manifest"
+      ],
+      "outputs": [
+        "governed-department-skills"
+      ],
+      "gate_command": "python3 workflows/canvas_compiler.py --canvas-dir canvas --verify",
+      "metric": "zero duplicate skill registrations and 100% frontmatter validity",
+      "verification_gate": {
+        "jev_rubric": "company_os.skills",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "bridge",
+      "canvas_node_id": "bridge",
+      "canvas_lane": "Proof Portal Intake / Bridge",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "agentic_pattern_id": "dry-run",
+      "supporting_pattern_ids": [
+        "meta-controller",
+        "multi-agent"
+      ],
+      "pattern_family": "safety",
+      "owner_agent": "company-os-operator",
+      "inputs": [
+        "governed-department-skills",
+        "gate-d-approval-sha12"
+      ],
+      "outputs": [
+        "held-bridge-dispatch-receipt"
+      ],
+      "gate_command": "python3 workflows/canvas_compiler.py --canvas-dir canvas --verify",
+      "metric": "100% outward billing/quoting/handoff actions gated on Gate-D sha12",
+      "verification_gate": {
+        "jev_rubric": "company_os.bridge",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": true
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "local"
+      }
+    },
+    {
+      "id": "evolution",
+      "canvas_node_id": "evolution",
+      "canvas_lane": "Proof Portal Intake / Evolution",
+      "lane": "COMPANY_OS",
+      "reconcile_owner": "COMPANY_OS",
+      "agentic_pattern_id": "rlhf-self-improvement",
+      "supporting_pattern_ids": [
+        "reflexion",
+        "debate",
+        "memgpt"
+      ],
+      "pattern_family": "specialty",
+      "owner_agent": "company-os-evolver",
+      "inputs": [
+        "held-bridge-dispatch-receipt",
+        "independent-goldfish-verdict"
+      ],
+      "outputs": [
+        "draft-only-evolution-proposal"
+      ],
+      "gate_command": "python3 workflows/canvas_compiler.py --canvas-dir canvas --verify",
+      "metric": "independently verified capability delta without weakening any hard floor",
+      "verification_gate": {
+        "jev_rubric": "company_os.evolution",
+        "good_bad_min": {
+          "good": 3,
+          "bad": 3
+        },
+        "gate_d_required": false
+      },
+      "routing_policy": {
+        "jev_route_first": true,
+        "model_tier": "frontier"
+      }
+    }
+  ]
+}
